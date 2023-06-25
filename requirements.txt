@@ -1,0 +1,2 @@
+sqlalchemy >= 2.0.0
+sqlalchemy_utils >= 0.41.0

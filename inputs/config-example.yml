@@ -1,0 +1,55 @@
+base_path: /path/to/repo/
+doc_path: /outputs/doc
+log_path: /outputs/log
+
+db_name: new_database
+
+schemas:
+    - schema_1
+    - schema_2
+    - schema_3
+
+extensions:
+    - fuzzystrmatch
+    - postgis_tiger_geocoder
+    - pgRouting
+    - h3
+    - plpython3u
+    - pg_trgm
+    - pgcrypto
+    - btree_gin
+
+users:
+    # To create users sql with a password will be
+    # automatically generated.
+    # The user login will be stored in a "secrets" file
+    # locally under the doc_path, but not pushed to github.
+    #
+    - user_1
+    - user_2
+    - user_3
+
+policies:
+    # The policies follow a role based access control pattern.
+    # Per schema there exist three access tiers:
+    # "all" = ALL privileges within schema are granted
+    # "use" = CRUD privileges on table content are granted
+    # "r"   = SELECT privileges on table content are granted
+    # The respective access rights are configured to each user
+    # patterned like this: 
+    # user 
+    #   schema_1: tier_1
+    #   schema_2: etc...
+    #
+    user_1:
+        schema_1: all
+        schema_2: use
+        schema_3: r
+    user_2:
+        schema_1: r
+        schema_2: all
+        schema_3: use
+    user_3:
+        schema_1: use
+        schema_2: r
+        schema_3: all

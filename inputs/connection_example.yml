@@ -1,0 +1,22 @@
+# SSH-Tunnel with port forwarding (ssh-)
+
+ssh-connection-name:
+
+ssh-local-port:
+ssh-host:
+ssh-user:
+ssh-pass:
+ssh-key-file:
+ssh-key-pass:
+ssh-remote-port:
+
+
+# PostgreSQL-Cluster (db-)
+
+db-connection-name:
+
+db-host: 
+db-port:
+db-base: postgres
+db-user: postgres
+db-pass: 

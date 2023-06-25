@@ -1,5 +1,22 @@
+#################################
+# PyPG-specific gitignore
+#################################
+
+# environments and secrets
+postgres.env
+secrets.txt
+config.yml
+connection.yml
+outputs/*
+database/*
+
+
+#################################
+# github generic python gitignore
+#################################
+
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__
 *.py[cod]
 *$py.class
 
@@ -17,6 +34,9 @@ eggs/
 lib/
 lib64/
 parts/
+
+
+
 sdist/
 var/
 wheels/

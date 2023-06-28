@@ -5,7 +5,7 @@ from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
 import utils.db_connect as db_connect
-import utils.execute_statement as exe
+from utils.execute_statement import execute_statement
 from core.read_configuration import read_configuration
 
 
@@ -46,23 +46,23 @@ def create_extensions(config, connection):
             print(f"INFO: Extension {extension} exists.")
         else:
 
-            # statement = create_extension
-            # success = f"INFO: Extension {extension} has been installed."
-            # error = f"ERROR: Extension {extension} couldn't be installed"
+            statement = create_extension
+            success = f"INFO: Extension {extension} has been installed."
+            error = f"ERROR: Extension {extension} couldn't be installed"
 
-            # log = exe.execute_statement(engine, statement, success, error)
-            # print(log)
+            log = execute_statement(engine, statement, success, error)
+            print(log)
 
-            with engine.connect() as conn:
-                transaction = conn.begin()
-                try:
-                    conn.execute(create_extension)
-                    transaction.commit()
-                    print(f"INFO: Extension {extension} has been installed.")
-                except SQLAlchemyError as e:
-                    transaction.rollback()
-                    print(f"ERROR: Extension {extension} couldn't be installed: {e}.")
-                continue
+            # with engine.connect() as conn:
+            #     transaction = conn.begin()
+            #     try:
+            #         conn.execute(create_extension)
+            #         transaction.commit()
+            #         print(f"INFO: Extension {extension} has been installed.")
+            #     except SQLAlchemyError as e:
+            #         transaction.rollback()
+            #         print(f"ERROR: Extension {extension} couldn't be installed: {e}.")
+            #     continue
                 
 
     # with engine.connect() as conn:

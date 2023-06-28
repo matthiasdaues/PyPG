@@ -29,7 +29,6 @@ def create_schemas(config: str, connection: str):
     with engine.connect() as conn:
         result = conn.execute(get_schemas)
         existing_schemas = [row[0] for row in result]
-    conn.close()
 
     # Get list of existing roles and compare with configuration.
     get_schemas = text("select rolname from pg_catalog.pg_roles;")
@@ -37,7 +36,6 @@ def create_schemas(config: str, connection: str):
         result = conn.execute(get_schemas)
         existing_roles = [row[0] for row in result]
         print(existing_roles)
-    conn.close()
 
     # create local folders for schemas if they don't already exist,
     # create schemas not yet existing in the database,
@@ -72,7 +70,6 @@ def create_schemas(config: str, connection: str):
                 except SQLAlchemyError as e:
                     transaction.rollback()
                     print(f"ERROR: Schema {schema} couldn't be created: {e}.")
-            conn.close()
             
         # create the schema specific roles governing access
         # create access_tier "all" if not exists
@@ -88,11 +85,9 @@ def create_schemas(config: str, connection: str):
                         conn.execute(statement[1])
                         transaction.commit()
                         print("INFO: " + str(statement[1]) + " committed")
-                        conn.close()
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: {e}")
-                        conn.close()
                     continue
         else: 
             for statement in setup_statements_all:
@@ -102,11 +97,9 @@ def create_schemas(config: str, connection: str):
                         conn.execute(statement[1])
                         transaction.commit()
                         print("INFO: " + str(statement[1]) + " committed")
-                        conn.close()
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: {e}")
-                        conn.close()
                     continue
         
         # create access_tier "use" if not exists
@@ -122,11 +115,9 @@ def create_schemas(config: str, connection: str):
                         conn.execute(statement[1])
                         transaction.commit()
                         print("INFO: " + str(statement[1]) + " committed")
-                        conn.close()
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: {e}")
-                        conn.close()
                     continue
         else: 
             for statement in setup_statements_use:
@@ -136,11 +127,9 @@ def create_schemas(config: str, connection: str):
                         conn.execute(statement[1])
                         transaction.commit()
                         print("INFO: " + str(statement[1]) + " committed")
-                        conn.close()
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: {e}")
-                        conn.close()
                     continue
         
         # create access_tier "read" if not exists
@@ -156,11 +145,9 @@ def create_schemas(config: str, connection: str):
                         conn.execute(statement[1])
                         transaction.commit()
                         print("INFO: " + str(statement[1]) + " committed")
-                        conn.close()
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: {e}")
-                        conn.close()
                     continue
         else: 
             for statement in setup_statements_r:
@@ -170,10 +157,8 @@ def create_schemas(config: str, connection: str):
                         conn.execute(statement[1])
                         transaction.commit()
                         print("INFO: " + str(statement[1]) + " committed")
-                        conn.close()
                     except SQLAlchemyError as e:
                         print(f"ERROR: {e}")
-                        conn.close()
                     continue
     
         # create sql statements in the respective schema folders

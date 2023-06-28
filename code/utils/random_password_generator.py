@@ -1,6 +1,8 @@
 # sources: 
 # https://www.geeksforgeeks.org/generating-strong-password-using-python
 # https://www.geeksforgeeks.org/create-a-random-password-generator-using-python/
+#
+# greatly improved by simon-seyock. Thx :)
 
 import random
 import array
@@ -42,7 +44,7 @@ def generate_password(user):
     # combine the character randomly selected above
     # at this stage, the password contains only 4 characters but
     # we want a 12-character password
-    temp_pass = rand_digit + rand_upper + rand_lower + rand_symbol
+    temp_pass = [rand_digit, rand_upper, rand_lower, rand_symbol]
     
     
     # now that we are sure we have at least one character from each
@@ -50,19 +52,13 @@ def generate_password(user):
     # the password length by selecting randomly from the combined
     # list of character above.
     for x in range(MAX_LEN - 4):
-        temp_pass = temp_pass + random.choice(COMBINED_LIST)
+        temp_pass.append(random.choice(COMBINED_LIST))
     
-        # convert temporary password into array and shuffle to
-        # prevent it from having a consistent pattern
-        # where the beginning of the password is predictable
-        temp_pass_list = array.array('u', temp_pass)
-        random.shuffle(temp_pass_list)
+    # convert temporary password into array and shuffle to
+    # prevent it from having a consistent pattern
+    # where the beginning of the password is predictable
+    temp_pass_list = array.array('u', temp_pass)
+    random.shuffle(temp_pass_list)
     
-    # traverse the temporary password array and append the chars
-    # to form the password
-    password = ""
-    for x in temp_pass_list:
-            password = password + x
-            
-    # print out password
-    return str(password)
+    # join chars to form password
+    return "".join(temp_pass_list)

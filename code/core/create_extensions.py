@@ -5,6 +5,7 @@ from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
 import utils.db_connect as db_connect
+import utils.execute_statement as exe
 from core.read_configuration import read_configuration
 
 
@@ -44,6 +45,14 @@ def create_extensions(config, connection):
         if extension in installed_extensions:
             print(f"INFO: Extension {extension} exists.")
         else:
+
+            # statement = create_extension
+            # success = f"INFO: Extension {extension} has been installed."
+            # error = f"ERROR: Extension {extension} couldn't be installed"
+
+            # log = exe.execute_statement(engine, statement, success, error)
+            # print(log)
+
             with engine.connect() as conn:
                 transaction = conn.begin()
                 try:
@@ -54,7 +63,7 @@ def create_extensions(config, connection):
                     transaction.rollback()
                     print(f"ERROR: Extension {extension} couldn't be installed: {e}.")
                 continue
-    conn.close()
+                
 
     # with engine.connect() as conn:
     #     result = conn.execute(get_extensions).fetchall()

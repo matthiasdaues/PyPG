@@ -35,10 +35,8 @@ def create_policies(config: str, connection: str):
                     conn.execute(grant_privilege)
                     transaction.commit()
                     print(f"INFO: User {user} has been granted privilege {schema}_{access_tier}")
-                    conn.close()
                 except SQLAlchemyError as e:
                     print(f"ERROR: {e}")
-                    conn.close()
                 continue
 
 

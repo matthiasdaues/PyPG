@@ -23,6 +23,8 @@ def read_configuration(config):
     paths['roles_path'] = os.path.join(paths['db_path'], '02_roles')
     paths['access_roles_path'] = os.path.join(paths['roles_path'], 'access_roles')
     paths['users_path'] = os.path.join(paths['roles_path'], 'users')
+    paths['doc_path'] = configuration['doc_path']
+    paths['log_path'] = configuration['log_path']
 
     # append paths to configuration dictionary
     configuration['paths'] = paths

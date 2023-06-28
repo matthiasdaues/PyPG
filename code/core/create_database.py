@@ -1,4 +1,3 @@
-import yaml
 import os
 
 import sqlalchemy_utils as sal_utils                # noqa: F401

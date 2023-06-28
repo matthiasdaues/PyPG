@@ -40,14 +40,13 @@ def create_users(config, connection):
 
         for i in result:
             existing_users.append(i[0])
-    conn.close()
 
     # create users if necessary and store the credentials.
     for user in configuration['users']:
 
         # prepare create statement for user
         password = generate_password(user)
-        create_user = text(f"create user {quoted_name(user, False)} with encrypted password '{quoted_name(password, True)}';")
+        create_user = text(f"create user {quoted_name(user, False)} with encrypted password '{quoted_name(password, False)}';")
         secret = str(f"{user}: {password}")
 
         # check if user already exists
@@ -83,7 +82,6 @@ def create_users(config, connection):
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: User {user} couldn't be created: {e}.")
-                conn.close()
 
                 # Create local assets
                 create_user_folder(user, users_path)
@@ -104,7 +102,6 @@ def create_users(config, connection):
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: User {user} couldn't be created: {e}.")
-                conn.close()
 
                 # Create local assets
                 create_user_folder(user, users_path)

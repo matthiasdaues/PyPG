@@ -2,8 +2,8 @@ import core
 
 # declare the paths to the configuration yaml and
 # the connection yaml files.
-config = '../inputs/config.yml'
-connection = '../inputs/connection.yml'
+config = './PyPG/inputs/config.yml'
+connection = './PyPG/inputs/connection.yml'
 
 # deploy database as specified in the configuration
 # and connection yaml files.
@@ -31,3 +31,7 @@ core.create_schemas(config, connection)
 # grant the respective privileges per user on the schemas
 # as defined in the three access tiers.
 core.create_policies(config, connection)
+
+# TODO: Create a function to collect all roles granted to postgres in the process and revoke them.
+# TODO: Create sql files with grant and revoke statements in the database folder structure
+# TODO: Create logging

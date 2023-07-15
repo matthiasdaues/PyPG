@@ -199,16 +199,10 @@ def create_schema_roles(schema: str):
     grant_statements_all.append(('grant_all_to_role_all', text(f"grant all on schema {quoted_name(schema, False)} to {quoted_name(role_all, False)};")))
 
     # grant object privileges to schema_all
-    revoke_statements_all.insert(0, ('revoke_all_on_tables_from_role_all' , text(f"revoke all on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_all, False)};")))
-    grant_statements_all.append(('grant_all_on_tables_to_role_all', text(f"grant all on all tables in schema {quoted_name(schema, False)} to {quoted_name(role_all, False)};")))
+    # This is probably obsolete since at this time there exists no object in the schema.
 
-    # alter default privileges on tables for schema_all
-    revoke_statements_all.insert(0, ('alter_default_privileges_for_role_all_revoke', text(f"alter default privileges for role {quoted_name(role_all, False)} in schema {quoted_name(schema, False)} revoke all on tables from {quoted_name(role_all, False)};")))
-    grant_statements_all.append(('alter_default_privileges_for_role_all_grant', text(f"alter default privileges for role {quoted_name(role_all, False)} in schema {quoted_name(schema, False)} grant all on tables to {quoted_name(role_all, False)};")))
-
-    # revoke from postgres after granting / grant to postgres before revoking
-    grant_statements_all.append(('revoke_role_all_from_postgres', text(f"revoke {quoted_name(role_all, False)} from postgres;")))
-    revoke_statements_all.insert(0, ('grant_role_all_to_postgres', text(f"grant {quoted_name(role_all, False)} to postgres;")))
+    # the altering of default privileges will be don in the "policies" function. 
+    # It must be run for all three access tiers for every "FOR ROLE" being granted "all" tier access
 
     ####################
     # Access Tier "use" 
@@ -231,38 +225,6 @@ def create_schema_roles(schema: str):
     revoke_statements_use.insert(0, ('revoke_usage_on_schema_from_role_use', text(f"revoke usage on schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
     grant_statements_use.append(('grant_usage_on_schema_to_role_use', text(f"grant usage on schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
 
-    # grant selected privileges on objects to schema_use
-    grant_statements_use.append(('grant_select_on_all_tables', text(f"grant select on all tables in schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('grant_insert_on_all_tables', text(f"grant insert on all tables in schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('grant_update_on_all_tables', text(f"grant update on all tables in schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('grant_delete_on_all_tables', text(f"grant delete on all tables in schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('grant_execute_on_all_functions', text(f"grant execute on all functions in schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
-    # grant_statements_use.append(('grant_execute_on_all_procedures', text(f"grant execute on all procedures in schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('revoke_select_on_all_tables',text(f"revoke select on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('revoke_insert_on_all_tables',text(f"revoke insert on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('revoke_update_on_all_tables',text(f"revoke update on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('revoke_delege_on_all_tables',text(f"revoke delete on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('revoke_execute_on_all_functions',text(f"revoke execute on all functions in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    # revoke_statements_use.insert(0, ('revoke_execute_on_all_procedures',text(f"revoke execute on all procedures in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
- 
-    # alter default privileges on tables for schema_use
-    grant_statements_use.append(('alter_default_grant_select_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} grant select on tables to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('alter_default_grant_insert_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} grant insert on tables to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('alter_default_grant_update_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} grant update on tables to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('alter_default_grant_delete_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} grant delete on tables to {quoted_name(role_use, False)};")))
-    grant_statements_use.append(('alter_default_grant_execute_on_all_functions', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} grant execute on functions to {quoted_name(role_use, False)};")))
-    # grant_statements_use.append(('alter_default_grant_execute_on_all_procedures', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} grant execute on procedures in schema {quoted_name(schema, False)} to {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('alter_default_revoke_select_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} revoke select on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('alter_default_revoke_insert_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} revoke insert on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('alter_default_revoke_update_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} revoke update on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('alter_default_revoke_delete_on_all_tables', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} revoke delete on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    revoke_statements_use.insert(0, ('alter_default_revoke_execute_on_all_functions', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} revoke execute on all functions in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-    # revoke_statements_use.insert(0, ('alter_default_revoke_execute_on_all_procedures', text(f"alter default privileges for role {quoted_name(role_use, False)} in schema {quoted_name(schema, False)} revoke execute on all procedures in schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
-
-    # revoke from postgres after granting / grant to postgres before revoking
-    grant_statements_use.append(('revoke_role_use_from_postgres', text(f"revoke {quoted_name(role_use, False)} from postgres;")))
-    revoke_statements_use.insert(0, ('grant_role_use_to_postgres', text(f"grant {quoted_name(role_use, False)} to postgres;")))
-
     ####################
     # Access Tier "read" 
     ####################
@@ -283,18 +245,6 @@ def create_schema_roles(schema: str):
     # grant usage on schema to schema_r
     revoke_statements_r.insert(0, ('revoke_usage_on_schema_from_role_r', text(f"revoke usage on schema {quoted_name(schema, False)} from {quoted_name(role_r, False)};")))
     grant_statements_r.append(('grant_usage_on_schema_to_role_r', text(f"grant usage on schema {quoted_name(schema, False)} to {quoted_name(role_r, False)};")))
-
-    # grant selected privileges on tables to schema_r
-    grant_statements_r.append(('grant_select_on_all_tables', text(f"grant select on all tables in schema {quoted_name(schema, False)} to {quoted_name(role_r, False)};")))
-    revoke_statements_r.insert(0, ('revoke_select_on_all_tables',text(f"revoke select on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_r, False)};")))
- 
-    # alter default privileges on tables for schema_r
-    grant_statements_r.append(('alter_default_grant_select_on_all_tables', text(f"alter default privileges for role {quoted_name(role_r, False)} in schema {quoted_name(schema, False)} grant select on tables to {quoted_name(role_r, False)};")))
-    revoke_statements_r.insert(0, ('alter_default_revoke_select_on_all_tables', text(f"alter default privileges for role {quoted_name(role_r, False)} in schema {quoted_name(schema, False)} revoke select on all tables in schema {quoted_name(schema, False)} from {quoted_name(role_r, False)};")))
-
-    # revoke from postgres after granting / grant to postgres before revoking
-    grant_statements_r.append(('revoke_role_r_from_postgres', text(f"revoke {quoted_name(role_r, False)} from postgres;")))
-    revoke_statements_r.insert(0, ('grant_role_r_to_postgres', text(f"grant {quoted_name(role_r, False)} to postgres;")))
 
     # Collate return dictionary with lists of statements to be executed in the main function
     setup_statements_all = create_statements_all + grant_statements_all

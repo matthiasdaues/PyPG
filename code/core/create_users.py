@@ -27,6 +27,7 @@ def create_users(config, connection):
 
     # PostgreSQL connection information
     conn_string = db_connect.get_db_connection(config, connection)
+    setup_user = db_connect.get_setup_user(connection)
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
@@ -47,6 +48,7 @@ def create_users(config, connection):
         # prepare create statement for user
         password = generate_password(user)
         create_user = text(f"create user {quoted_name(user, False)} with encrypted password '{quoted_name(password, False)}';")
+        grant_user_to_setup_user = text(f"grant {quoted_name(user, False)} to {quoted_name(setup_user, False)};")
         secret = str(f"{user}: {password}")
 
         # check if user already exists
@@ -97,8 +99,10 @@ def create_users(config, connection):
                     transaction = conn.begin()
                     try:
                         conn.execute(create_user)
+                        conn.execute(grant_user_to_setup_user)
                         transaction.commit()
                         print(f"INFO: User {user} has been created.")
+                        print(f"INFO: Role {user} has been grantet to {setup_user}.")
                     except SQLAlchemyError as e:
                         transaction.rollback()
                         print(f"ERROR: User {user} couldn't be created: {e}.")

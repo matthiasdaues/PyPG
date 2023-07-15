@@ -29,3 +29,13 @@ def get_db_connection(config: str, connection: str):
     conn_string = "postgresql://%s:%s@%s:%s/%s" % (user, pwd, host, port, database)
 
     return conn_string
+
+
+def get_setup_user(connection: str):
+    """
+    Gets postgres cluster connection parameters and returns a connection string.
+    """
+    cluster = yaml.safe_load(open(connection))
+    setup_user = cluster['db-user']
+
+    return setup_user

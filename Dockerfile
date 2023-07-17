@@ -8,6 +8,6 @@ COPY requirements.txt ./requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r ./requirements.txt
 
-COPY ./code ./app/code
+COPY ./code/. ./app/code
 
 CMD ["python", "code/run_setup_database.py"]

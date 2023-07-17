@@ -4,8 +4,8 @@ pyyaml == 6.0
 psycopg2-binary == 2.9.6
 
 # install cython before you install geohash-hilbert!
-cython == 0.29.35
+# cython == 0.29.35
 
 # with cython installed the function in geohash-hilbert
 #  will execute using the cython C bindings.
-geohash-hilbert == 1.4.0
+# geohash-hilbert == 1.4.0

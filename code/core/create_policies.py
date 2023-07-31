@@ -30,8 +30,10 @@ def create_policies(config: str, connection: str):
         for schema, access_tier in policy.items():
             
             # construct the necessary grant statements
-            alter_def_priv_all = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on tables to {quoted_name(schema, False)}_all")
-            alter_def_priv_use = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant select, insert, update, delete on tables to {quoted_name(schema, False)}_use")
+            alter_def_priv_all_tables = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on tables to {quoted_name(schema, False)}_all")
+            alter_def_priv_all_sequences = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on sequences to {quoted_name(schema, False)}_all")
+            alter_def_priv_use_tables = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant select, insert, update, delete on tables to {quoted_name(schema, False)}_use")
+            alter_def_priv_use_sequences = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on sequences to {quoted_name(schema, False)}_use")
             alter_def_priv_r = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant select on tables to {quoted_name(schema, False)}_r")
             grant_privilege = text(f"grant {quoted_name(schema, False)}_{quoted_name(access_tier, False)} to {quoted_name(user, False)};")
 
@@ -41,8 +43,10 @@ def create_policies(config: str, connection: str):
                 with engine.connect() as conn:
                     transaction = conn.begin()
                     try:
-                        conn.execute(alter_def_priv_all)
-                        conn.execute(alter_def_priv_use)
+                        conn.execute(alter_def_priv_all_tables)
+                        conn.execute(alter_def_priv_all_sequences)
+                        conn.execute(alter_def_priv_use_tables)
+                        conn.execute(alter_def_priv_use_sequences)
                         conn.execute(alter_def_priv_r)
                         conn.execute(grant_privilege)
                         transaction.commit()                        

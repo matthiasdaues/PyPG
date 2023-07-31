@@ -33,7 +33,7 @@ def get_db_connection(config: str, connection: str):
 
 def get_setup_user(connection: str):
     """
-    Gets postgres cluster connection parameters and returns a connection string.
+    Gets postgres cluster connection parameters and returns the superuser name.
     """
     cluster = yaml.safe_load(open(connection))
     setup_user = cluster['db-user']

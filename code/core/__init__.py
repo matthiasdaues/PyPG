@@ -5,3 +5,6 @@ from .create_extensions import create_extensions
 from .create_schemas import create_schemas, create_schema_roles
 from .create_users import create_users
 from .create_policies import create_policies
+from .rollback_and_cleanup_all import drop_database
+from .rollback_and_cleanup_all import drop_users
+from .rollback_and_cleanup_all import drop_roles

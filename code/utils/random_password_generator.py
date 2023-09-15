@@ -29,7 +29,7 @@ def generate_password(user):
                         'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
                         'Z']
     
-    SYMBOLS           = ['@', '#', '$', '%', '=', ':', '?', '.',  '!', '|', '~', '>', 
+    SYMBOLS           = ['#', '$', '%', '=', ':', '?', '.',  '!', '|', '~', '>', 
                         '*', '(', ')', '<']
     
     # combines all the character arrays above to form one array

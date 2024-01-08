@@ -3,10 +3,3 @@ sqlalchemy == 2.0.15
 sqlalchemy-utils == 0.41.1
 pyyaml == 6.0.1
 psycopg2-binary == 2.9.6
-
-# install cython
-#cython == 0.29.35
-
-# with cython installed the function in geohash-hilbert
-#  will execute using the cython C bindings.
-#geohash-hilbert == 1.4.0

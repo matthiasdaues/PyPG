@@ -8,3 +8,4 @@ from .create_policies import create_policies
 from .rollback_and_cleanup_all import drop_database
 from .rollback_and_cleanup_all import drop_users
 from .rollback_and_cleanup_all import drop_roles
+from .create_replication_user import grant_subscription_privilege

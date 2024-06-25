@@ -45,7 +45,7 @@ def create_schemas(config: str, connection: str):
         # define variables for the given schema
         create_schema = text(f"create schema {quoted_name(schema, False)};")
         schema_path = os.path.join(configuration['paths']['schemas_path'], schema) 
-        schema_roles = create_schema_roles(schema)
+        schema_roles = create_schema_roles(schema, connection)
 
         # create the folders in schema_path
         try:
@@ -169,13 +169,16 @@ def create_schemas(config: str, connection: str):
 ######################
 
 
-def create_schema_roles(schema: str):
+def create_schema_roles(schema: str, connection: str):
     """
     Create sql statements to model three access tiers for a given schema:
     1. schema_all = master of schema and objects within. Can do all.
     2. schema_use = CRUD usage of data within existing tables using existing functions / procedures.
     3. schema_r   = SELECT on existing tables.
     """
+    
+    # PostgreSQL connection information
+    setup_user = db_connect.get_setup_user(connection)
 
     ####################
     # Access Tier "all" 
@@ -191,8 +194,8 @@ def create_schema_roles(schema: str):
     role_all = schema + '_all'
     drop_statements_all.append(('drop_role_all', text(f"drop role {quoted_name(role_all, False)};")))
     create_statements_all.append(('create_role_all', text(f"create role {quoted_name(role_all, False)} with nosuperuser nocreatedb nologin noreplication;")))
-    grant_statements_all.append(('grant_role_all_to_postgres', text(f"grant {quoted_name(role_all, False)} to postgres;")))
-    revoke_statements_all.insert(0, ('revoke_role_all_from_postgres', text(f"revoke {quoted_name(role_all, False)} from postgres;")))
+    grant_statements_all.append(('grant_role_all_to_postgres', text(f"grant {quoted_name(role_all, False)} to {quoted_name(setup_user, False)};")))
+    revoke_statements_all.insert(0, ('revoke_role_all_from_postgres', text(f"revoke {quoted_name(role_all, False)} from {quoted_name(setup_user, False)};")))
 
     # grant schema privileges to schema_all
     revoke_statements_all.insert(0, ('revoke_all_from_role_all', text(f"revoke all on {quoted_name(schema, False)} from {quoted_name(role_all, False)};")))
@@ -218,8 +221,8 @@ def create_schema_roles(schema: str):
     role_use = schema + '_use'
     drop_statements_use.append(('drop_role_use', text(f"drop role {quoted_name(role_use, False)};")))
     create_statements_use.append(('create_role_use', text(f"create role {quoted_name(role_use, False)} with nosuperuser nocreatedb nologin noreplication;")))
-    grant_statements_use.append(('grant_role_use_to_postgres', text(f"grant {quoted_name(role_use, False)} to postgres;")))
-    revoke_statements_use.insert(0, ('revoke_role_use_from_postgres', text(f"revoke {quoted_name(role_use, False)} from postgres;")))
+    grant_statements_use.append(('grant_role_use_to_postgres', text(f"grant {quoted_name(role_use, False)} to {quoted_name(setup_user, False)};")))
+    revoke_statements_use.insert(0, ('revoke_role_use_from_postgres', text(f"revoke {quoted_name(role_use, False)} from {quoted_name(setup_user, False)};")))
 
     # grant usage on schema to schema_use
     revoke_statements_use.insert(0, ('revoke_usage_on_schema_from_role_use', text(f"revoke usage on schema {quoted_name(schema, False)} from {quoted_name(role_use, False)};")))
@@ -239,8 +242,8 @@ def create_schema_roles(schema: str):
     role_r = schema + '_r'
     drop_statements_r.append(('drop_role_r', text(f"drop role {quoted_name(role_r, False)};")))
     create_statements_r.append(('create_role_r', text(f"create role {quoted_name(role_r, False)} with nosuperuser nocreatedb nologin noreplication;")))
-    grant_statements_r.append(('grant_role_r_to_postgres', text(f"grant {quoted_name(role_r, False)} to postgres;")))
-    revoke_statements_r.insert(0, ('revoke_role_r_from_postgres', text(f"revoke {quoted_name(role_r, False)} from postgres;")))
+    grant_statements_r.append(('grant_role_r_to_postgres', text(f"grant {quoted_name(role_r, False)} to {quoted_name(setup_user, False)};")))
+    revoke_statements_r.insert(0, ('revoke_role_r_from_postgres', text(f"revoke {quoted_name(role_r, False)} from {quoted_name(setup_user, False)};")))
 
     # grant usage on schema to schema_r
     revoke_statements_r.insert(0, ('revoke_usage_on_schema_from_role_r', text(f"revoke usage on schema {quoted_name(schema, False)} from {quoted_name(role_r, False)};")))

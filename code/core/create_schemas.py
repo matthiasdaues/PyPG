@@ -200,11 +200,13 @@ def create_schema_roles(schema: str, connection: str):
     # grant schema privileges to schema_all
     revoke_statements_all.insert(0, ('revoke_all_from_role_all', text(f"revoke all on {quoted_name(schema, False)} from {quoted_name(role_all, False)};")))
     grant_statements_all.append(('grant_all_to_role_all', text(f"grant all on schema {quoted_name(schema, False)} to {quoted_name(role_all, False)};")))
+    revoke_statements_all.append(('revoke_functions_from_role_all', text(f"revoke all on all functions in schema {quoted_name(schema, False)} from {quoted_name(role_all, False)};")))
+    grant_statements_all.append(('grant_functions_to_role_all', text(f"grant all on all functions in schema {quoted_name(schema, False)} to {quoted_name(role_all, False)};")))
 
     # grant object privileges to schema_all
     # This is probably obsolete since at this time there exists no object in the schema.
 
-    # the altering of default privileges will be don in the "policies" function. 
+    # the altering of default privileges will be done in the "policies" function. 
     # It must be run for all three access tiers for every "FOR ROLE" being granted "all" tier access
 
     ####################

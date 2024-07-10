@@ -34,11 +34,11 @@ def drop_database(config, connection):
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
 
-    # Authorize with a password prompt
-    user_password = input("Enter the password: ")
+   # Authorize with a confirmation prompt
+    user_confirm = input("Enter Y to proceed: ")
 
-    # Compare the user's input with the valid password
-    if user_password == password:
+    # Compare the user's input with the validation rule
+    if user_confirm == 'Y':
         print("Access granted. Database will be dropped.")
 
         # If the password matches, drop the database:
@@ -68,11 +68,11 @@ def drop_users(config, connection):
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
 
-    # Authorize with a password prompt
-    user_password = input("Enter the password: ")
+   # Authorize with a confirmation prompt
+    user_confirm = input("Enter Y to proceed: ")
 
-    # Compare the user's input with the valid password
-    if user_password == password:
+    # Compare the user's input with the validation rule
+    if user_confirm == 'Y':
         print("Access granted. Users will be dropped.")
 
         # If the password matches, drop the users:
@@ -112,18 +112,18 @@ def drop_roles(config, connection):
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
 
-    # Authorize with a password prompt
-    user_password = input("Enter the password: ")
+    # Authorize with a confirmation prompt
+    user_confirm = input("Enter Y to proceed: ")
 
-    # Compare the user's input with the valid password
-    if user_password == password:
-        print("Access granted. Database will be dropped.")
+    # Compare the user's input with the validation rule
+    if user_confirm == 'Y':
+        print("Access granted. Roles will be dropped.")
 
     # Itereate through the list of schema names and delete the respective roles
     for schema in configuration['schemas']:
 
         # Collect drop statements for the given schema
-        schema_roles = create_schema_roles(schema)
+        schema_roles = create_schema_roles(schema, connection)
         statements = schema_roles['drop_statements_all'] + \
                      schema_roles['drop_statements_use'] + \
                      schema_roles['drop_statements_r']

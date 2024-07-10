@@ -8,7 +8,7 @@ import utils.db_connect as db_connect
 from core.read_configuration import read_configuration
 
 
-def grant_subscription_privilege(config, connection):
+def grant_subscription_privilege(config: str, connection: str):
     """
     Gets database configuration parameters from the given
     "config.yml" file and grants the privilege to create subscriptions
@@ -34,15 +34,29 @@ def grant_subscription_privilege(config, connection):
             existing_users.append(i[0])
 
     # create users if necessary and store the credentials.
+    db_name = configuration['db_name']
     for user in configuration['replication']:
 
         # prepare create statement for user
+        grant_create_on_db = text(f"grant create on database {quoted_name(db_name, False)}  to {quoted_name(user, False)};")
         grant_subscription = text(f"grant pg_create_subscription to {quoted_name(user, False)};")
 
         # check if user already exists
         if user not in existing_users:
             print(f"INFO: User {user} does not exist.")
         else:
+            
+            # grant create on DB privilege to user
+            with engine.connect() as conn:
+                transaction = conn.begin()
+                try:
+                    conn.execute(grant_create_on_db)
+                    transaction.commit()
+                    print(f"INFO: User {user} has been granted create privilege on db {db_name}.")
+                except SQLAlchemyError as e:
+                    transaction.rollback()
+                    print(f"ERROR: Privilege couldn't be granted to {user}: {e}.")
+
             # grant subscription privilege to user
             with engine.connect() as conn:
                 transaction = conn.begin()

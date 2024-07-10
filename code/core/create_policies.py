@@ -32,6 +32,7 @@ def create_policies(config: str, connection: str):
             # construct the necessary grant statements
             alter_def_priv_all_tables = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on tables to {quoted_name(schema, False)}_all")
             alter_def_priv_all_sequences = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on sequences to {quoted_name(schema, False)}_all")
+            alter_def_priv_all_functions = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on functions to {quoted_name(schema, False)}_all")
             alter_def_priv_use_tables = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant select, insert, update, delete on tables to {quoted_name(schema, False)}_use")
             alter_def_priv_use_sequences = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant all on sequences to {quoted_name(schema, False)}_use")
             alter_def_priv_r = text(f"alter default privileges for role {quoted_name(user, False)} in schema {quoted_name(schema, False)} grant select on tables to {quoted_name(schema, False)}_r")
@@ -45,6 +46,7 @@ def create_policies(config: str, connection: str):
                     try:
                         conn.execute(alter_def_priv_all_tables)
                         conn.execute(alter_def_priv_all_sequences)
+                        conn.execute(alter_def_priv_all_functions)
                         conn.execute(alter_def_priv_use_tables)
                         conn.execute(alter_def_priv_use_sequences)
                         conn.execute(alter_def_priv_r)

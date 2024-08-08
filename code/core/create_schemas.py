@@ -40,10 +40,12 @@ def create_schemas(config: str, connection: str):
     # create local folders for schemas if they don't already exist,
     # create schemas not yet existing in the database,
     # and configure the schema based access roles and privileges
-    for schema in configuration['schemas']:
+    schemas = configuration['schemas']
+    for schema, comment in schemas.items():
 
         # define variables for the given schema
         create_schema = text(f"create schema {quoted_name(schema, False)};")
+        create_comment = text(f"comment on schema {quoted_name(schema, False)} is '{quoted_name(comment, False)}'")
         schema_path = os.path.join(configuration['paths']['schemas_path'], schema) 
         schema_roles = create_schema_roles(schema, connection)
 
@@ -65,12 +67,13 @@ def create_schemas(config: str, connection: str):
                 transaction = conn.begin()
                 try:
                     conn.execute(create_schema)
+                    conn.execute(create_comment)
                     transaction.commit()
                     print(f"INFO: Schema {schema} has been created.")
                 except SQLAlchemyError as e:
                     transaction.rollback()
                     print(f"ERROR: Schema {schema} couldn't be created: {e}.")
-            
+    
         # create the schema specific roles governing access
         # create access_tier "all" if not exists
         role_all = schema_roles['role_all']

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+
+  postgis-database:
+    extends:
+      file: docker-compose.yaml
+      service: geoviewer-postgis
+    profiles:
+      - setup
+
+  postgis-database-setup:
+    build:
+      context: setup_postgis_database
+      dockerfile: Dockerfile
+    profiles:
+      - setup
+    volumes:
+      - ./setup_postgis_database/outputs:/app/outputs
+    environment:
+      DB_HOST: geoviewer-postgis
+      DB_PORT: 5433
+      DB_BASE: postgres
+      DB_USER: postgres
+      DB_PASS: postgres
+    depends_on:
+      geoviewer-postgis:
+        condition: service_healthy

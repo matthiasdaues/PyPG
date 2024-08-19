@@ -3,12 +3,15 @@
 #################################
 
 # environments and secrets
-postgres.env
-secrets.txt
 config.yml
 connection.yml
 outputs/*
 database/*
+postgres.env
+secrets.txt
+setup_statements.sql
+undo_statements.sql
+log.log
 
 
 #################################

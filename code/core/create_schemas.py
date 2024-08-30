@@ -5,6 +5,9 @@ from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
 import utils.db_connect as db_connect
+from utils.write_to_log import write_to_log
+from utils.write_to_setup_statements import write_to_setup_statements
+from utils.write_to_undo_statements import write_to_undo_statements
 from core.read_configuration import read_configuration
 
 
@@ -20,6 +23,11 @@ def create_schemas(config: str, connection: str):
 
     # PostgreSQL connection information
     conn_string = db_connect.get_db_connection(config, connection)
+
+    # define define log and statement files
+    setup_statements = configuration['files']['setup_statements']
+    undo_statements = configuration['files']['undo_statements']
+    log = configuration['files']['log']
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
@@ -46,51 +54,50 @@ def create_schemas(config: str, connection: str):
         # define variables for the given schema
         create_schema = text(f"create schema {quoted_name(schema, False)};")
         create_comment = text(f"comment on schema {quoted_name(schema, False)} is '{quoted_name(comment, False)}'")
-        schema_path = os.path.join(configuration['paths']['schemas_path'], schema) 
+        drop_schema = text(f"drop schema {quoted_name(schema, False)} cascade;")
         schema_roles = create_schema_roles(schema, connection)
-
-        # create the folders in schema_path
-        try:
-            if not os.path.exists(schema_path):
-                os.makedirs(schema_path)
-                print(f"INFO: Path '{schema_path}' has been created.")
-            else:
-                print(f"INFO: Path '{schema_path}' already exists.")
-        except OSError as error:
-            print(f"ERROR: Error creating path '{schema_path}': {error}")
 
         # create schema in db
         if schema in existing_schemas:
-            print(f"INFO: Schema {schema} exists.")
+            message = text(f"INFO: Schema {schema} exists.")
+            write_to_log(log, message)
         else:
             with engine.connect() as conn:
                 transaction = conn.begin()
                 try:
                     conn.execute(create_schema)
+                    write_to_setup_statements(setup_statements, str(create_schema))
+                    write_to_undo_statements(undo_statements, str(drop_schema))
                     conn.execute(create_comment)
                     transaction.commit()
-                    print(f"INFO: Schema {schema} has been created.")
+                    message = text(f"INFO: Schema {schema} has been created.")
+                    write_to_log(log, message)
                 except SQLAlchemyError as e:
                     transaction.rollback()
-                    print(f"ERROR: Schema {schema} couldn't be created: {e}.")
+                    message = text(f"ERROR: Schema {schema} couldn't be created: {e}.")
+                    write_to_log(log, message)
     
         # create the schema specific roles governing access
         # create access_tier "all" if not exists
         role_all = schema_roles['role_all']
         setup_statements_all = schema_roles['setup_statements_all']
         grant_statements_all = schema_roles['grant_statements_all']
+        revoke_statements_all = schema_roles['revoke_statements_all']
         if role_all in existing_roles:
-            print(f"INFO: Role {role_all} already exists on the cluster.")
+            message = text(f"INFO: Role {role_all} already exists on the cluster.")
+            write_to_log(log, message)
             for statement in grant_statements_all:
                 with engine.connect() as conn:
                     transaction = conn.begin()
                     try:
                         conn.execute(statement[1])
                         transaction.commit()
-                        print("INFO: " + str(statement[1]) + " committed")
+                        message = text("INFO: " + str(statement[1]) + " committed")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
                         transaction.rollback()
-                        print(f"ERROR: {e}")
+                        message = text(f"ERROR: {e}")
+                        write_to_log(log, message)
                     continue
         else: 
             for statement in setup_statements_all:
@@ -99,10 +106,12 @@ def create_schemas(config: str, connection: str):
                     try:
                         conn.execute(statement[1])
                         transaction.commit()
-                        print("INFO: " + str(statement[1]) + " committed")
+                        message = text("INFO: " + str(statement[1]) + " committed")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
                         transaction.rollback()
-                        print(f"ERROR: {e}")
+                        message = text(f"ERROR: {e}")
+                        write_to_log(log, message)
                     continue
         
         # create access_tier "use" if not exists
@@ -110,17 +119,20 @@ def create_schemas(config: str, connection: str):
         setup_statements_use = schema_roles['setup_statements_use']
         grant_statements_use = schema_roles['grant_statements_use']
         if role_use in existing_roles:
-            print(f"INFO: Role {role_use} already exists on the cluster.")
+            message = text(f"INFO: Role {role_use} already exists on the cluster.")
+            write_to_log(log, message)
             for statement in grant_statements_use:
                 with engine.connect() as conn:
                     transaction = conn.begin()
                     try:
                         conn.execute(statement[1])
                         transaction.commit()
-                        print("INFO: " + str(statement[1]) + " committed")
+                        message = text("INFO: " + str(statement[1]) + " committed")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
                         transaction.rollback()
-                        print(f"ERROR: {e}")
+                        message = text(f"ERROR: {e}")
+                        write_to_log(log, message)
                     continue
         else: 
             for statement in setup_statements_use:
@@ -129,10 +141,12 @@ def create_schemas(config: str, connection: str):
                     try:
                         conn.execute(statement[1])
                         transaction.commit()
-                        print("INFO: " + str(statement[1]) + " committed")
+                        message = text("INFO: " + str(statement[1]) + " committed")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
                         transaction.rollback()
-                        print(f"ERROR: {e}")
+                        message = text(f"ERROR: {e}")
+                        write_to_log(log, message)
                     continue
         
         # create access_tier "read" if not exists
@@ -140,17 +154,20 @@ def create_schemas(config: str, connection: str):
         setup_statements_r = schema_roles['setup_statements_r']
         grant_statements_r = schema_roles['grant_statements_r']
         if role_r in existing_roles:
-            print(f"INFO: Role {role_r} already exists on the cluster.")
+            message = text(f"INFO: Role {role_r} already exists on the cluster.")
+            write_to_log(log, message)
             for statement in grant_statements_r:
                 with engine.connect() as conn:
                     transaction = conn.begin()
                     try:
                         conn.execute(statement[1])
                         transaction.commit()
-                        print("INFO: " + str(statement[1]) + " committed")
+                        message = text("INFO: " + str(statement[1]) + " committed")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
                         transaction.rollback()
-                        print(f"ERROR: {e}")
+                        message = (f"ERROR: {e}")
+                        write_to_log(log, message)
                     continue
         else: 
             for statement in setup_statements_r:
@@ -159,12 +176,12 @@ def create_schemas(config: str, connection: str):
                     try:
                         conn.execute(statement[1])
                         transaction.commit()
-                        print("INFO: " + str(statement[1]) + " committed")
+                        message = text("INFO: " + str(statement[1]) + " committed")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
-                        print(f"ERROR: {e}")
+                        message = (f"ERROR: {e}")
+                        write_to_log(log, message)
                     continue
-    
-        # create sql statements in the respective schema folders
 
 
 ######################
@@ -282,30 +299,3 @@ def create_schema_roles(schema: str, connection: str):
         
     # return statements
     return statements_dict
-
-    # for statement in create_statements_all:
-    #     print(statement[1])
-    # for statement in grant_statements_all:
-    #     print(statement[1])
-    # for statement in revoke_statements_all:
-    #     print(statement[1])
-    # for statement in drop_statements_all:
-    #     print(statement[1])
-
-    # for statement in create_statements_use:
-    #     print(statement[1])
-    # for statement in grant_statements_use:
-    #     print(statement[1])
-    # for statement in revoke_statements_use:
-    #     print(statement[1])
-    # for statement in drop_statements_use:
-    #     print(statement[1])
-
-    # for statement in create_statements_r:
-    #     print(statement[1])
-    # for statement in grant_statements_r:
-    #     print(statement[1])
-    # for statement in revoke_statements_r:
-    #     print(statement[1])
-    # for statement in drop_statements_r:
-    #     print(statement[1])

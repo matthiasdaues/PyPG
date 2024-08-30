@@ -5,6 +5,9 @@ from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
 import utils.db_connect as db_connect
+from utils.write_to_log import write_to_log
+from utils.write_to_setup_statements import write_to_setup_statements
+from utils.write_to_undo_statements import write_to_undo_statements
 from core.read_configuration import read_configuration
 from utils.random_password_generator import generate_password
 
@@ -21,9 +24,11 @@ def create_users(config, connection):
     # read the configuration
     configuration = read_configuration(config)
 
-    # define db_name and define directory path as absolute path
-    secrets = configuration['secret_path']
-    users_path = configuration['paths']['users_path']
+    # define secrets, log and statement files
+    setup_statements = configuration['files']['setup_statements']
+    undo_statements = configuration['files']['undo_statements']
+    log = configuration['files']['log']
+    secrets = configuration['files']['secrets']
 
     # PostgreSQL connection information
     conn_string = db_connect.get_db_connection(config, connection)
@@ -49,14 +54,20 @@ def create_users(config, connection):
         password = generate_password(user)
         create_user = text(f"create user {quoted_name(user, False)} with encrypted password '{quoted_name(password, False)}';")
         grant_user_to_setup_user = text(f"grant {quoted_name(user, False)} to {quoted_name(setup_user, False)};")
+        drop_user_3 = text(f"reassign owned by {quoted_name(user, False)} to {quoted_name(setup_user, False)};")
+        drop_user_2 = text(f"drop owned by {quoted_name(user, False)} to {quoted_name(setup_user, False)};")
+        drop_user_1 = text(f"drop user {quoted_name(user, False)};")        
         secret = str(f"{user}: {password}")
+        write_to_setup_statements(setup_statements, str(create_user) + f"\n" + str(grant_user_to_setup_user))
+        write_to_undo_statements(undo_statements, str(drop_user_3) + f"\n" + str(drop_user_2) + f"\n" + str(drop_user_1))
 
         # check if user already exists
         if user in existing_users:
-            print(f"INFO: User {user} already exists in the database.")
+            message = text(f"INFO: User {user} already exists in the database.")
+            write_to_log(log, message)
         else:
             # check if user is already in the secrets.txt
-            # open escrets
+            # open secrets
             with open(secrets, "r") as read_secrets:
                 content = read_secrets.read()
             if user in content:
@@ -72,7 +83,8 @@ def create_users(config, connection):
                 # Write the modified lines back to the file
                 with open(secrets, "w") as file:
                     file.writelines(lines)
-                print(f"INFO: Credentials for {user} have been updated.")
+                message = text(f"INFO: Credentials for {user} have been updated.")
+                write_to_log(log, message)
 
                 # Create the user in the database
                 with engine.connect() as conn:
@@ -80,19 +92,19 @@ def create_users(config, connection):
                     try:
                         conn.execute(create_user)
                         transaction.commit()
-                        print(f"INFO: User {user} has been created.")
+                        message = text(f"INFO: User {user} has been created.")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
                         transaction.rollback()
-                        print(f"ERROR: User {user} couldn't be created: {e}.")
-
-                # Create local assets
-                create_user_folder(user, users_path)
+                        message = text(f"ERROR: User {user} couldn't be created: {e}.")
+                        write_to_log(log, message)
 
             else:
 
                 with open(secrets, "a") as write_secrets:
                     write_secrets.write(secret + "\n")
-                print(f"INFO: Credentials for user {user} created.")
+                message = text(f"INFO: Credentials for user {user} created.")
+                write_to_log(log, message)
 
                 # Create the user in the database
                 with engine.connect() as conn:
@@ -101,49 +113,11 @@ def create_users(config, connection):
                         conn.execute(create_user)
                         conn.execute(grant_user_to_setup_user)
                         transaction.commit()
-                        print(f"INFO: User {user} has been created.")
-                        print(f"INFO: Role {user} has been grantet to {setup_user}.")
+                        message = text(f"INFO: User {user} has been created.")
+                        write_to_log(log, message)
+                        message = text(f"INFO: Role {user} has been granted to {setup_user}.")
+                        write_to_log(log, message)
                     except SQLAlchemyError as e:
                         transaction.rollback()
-                        print(f"ERROR: User {user} couldn't be created: {e}.")
-
-                # Create local assets
-                create_user_folder(user, users_path)
-
-######################
-# ancillary functions.
-######################
-
-
-def create_user_folder(user: str, users_path: str):
-    """
-    ancillary function to create local folders.
-    """
-    # create folder for user related sql
-    user_path = os.path.join(users_path, user)
-    try:
-        if not os.path.exists(user_path):
-            os.makedirs(user_path)
-            print(f"INFO: Directory {user} created.")
-        else:
-            print(f"INFO: Directory {user} already exists.")
-
-        # write create and drop statements to file
-        create = f"create user {user} with encrypted password 'ThisIsNotThePassword';"
-        drop = f"drop user {user};"
-        create_file = os.path.join(user_path, '01_create_user.sql')
-        drop_file = os.path.join(user_path, '04_drop_user.sql')
-        if not os.path.exists(create_file):
-            with open(create_file, "w") as create_f:
-                create_f.write(create)
-            print("INFO: Create file created.")
-        else:
-            print("INFO: Create file already exists.")
-        if not os.path.exists(drop_file):
-            with open(drop_file, "w") as drop_f:
-                drop_f.write(drop)
-            print("INFO: Drop file created.")
-        else:
-            print("INFO: Drop file already exists.")
-    except OSError as e:
-        print(f"ERROR: Error creating directory {user}: {e}")
+                        message = text(f"ERROR: User {user} couldn't be created: {e}.")
+                        write_to_log(log, message)

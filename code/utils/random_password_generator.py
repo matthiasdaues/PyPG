@@ -14,7 +14,7 @@ def generate_password(user):
 
     # maximum length of password needed
     # this can be changed to suit your password length
-    MAX_LEN = 20
+    MAX_LEN = 30
     
     # declare arrays of the character that we need in out password
     # Represented as chars to enable easy string concatenation
@@ -29,11 +29,11 @@ def generate_password(user):
                         'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y',
                         'Z']
     
-    SYMBOLS           = ['#', '$', '%', '=', '?', '.',  '!', '|', '~', '>', 
+    SYMBOLS           = ['#', '$', '=', '?', '.', '|', '~', '>', 
                         '*', '(', ')', '<']
     
     # combines all the character arrays above to form one array
-    COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS + SYMBOLS
+    COMBINED_LIST = DIGITS + UPCASE_CHARACTERS + LOCASE_CHARACTERS #+ SYMBOLS
     
     # randomly select at least one character from each character set above
     rand_digit = random.choice(DIGITS)

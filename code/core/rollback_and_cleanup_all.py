@@ -26,7 +26,6 @@ def drop_database(config, connection):
 
     # define db_name and define directory path as absolute path
     db_name = configuration['db_name']
-    path = configuration['paths']['db_details_path']
 
     # PostgreSQL connection information
     conn_string = db_connect.get_db_connection(config, connection)

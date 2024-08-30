@@ -5,6 +5,9 @@ from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
 import utils.db_connect as db_connect
+from utils.write_to_log import write_to_log
+from utils.write_to_setup_statements import write_to_setup_statements
+from utils.write_to_undo_statements import write_to_undo_statements
 from utils.execute_statement import execute_statement
 from core.read_configuration import read_configuration
 
@@ -20,7 +23,10 @@ def create_extensions(config, connection):
     configuration = read_configuration(config)
 
     # define db_name and define directory path as absolute path
-    # path = configuration['paths']['extensions_path']
+    db_name = configuration['db_name']
+    setup_statements = configuration['files']['setup_statements']
+    undo_statements = configuration['files']['undo_statements']
+    log = configuration['files']['log']
 
     # PostgreSQL connection information
     conn_string = db_connect.get_db_connection(config, connection)
@@ -42,32 +48,18 @@ def create_extensions(config, connection):
     for i in configuration['extensions']:
         extension = i
         create_extension = text(f"create extension if not exists {quoted_name(extension, False)} cascade;")
+        drop_extension = text(f"drop extension if exists {quoted_name(extension, False)} cascade;")
         if extension in installed_extensions:
-            print(f"INFO: Extension {extension} exists.")
+            message = text(f"INFO: Extension {extension} exists.")
+            write_to_log(log, message)
+            write_to_setup_statements(setup_statements, create_extension)
+            write_to_undo_statements(undo_statements, drop_extension)
         else:
-
             statement = create_extension
             success = f"INFO: Extension {extension} has been installed."
             error = f"ERROR: Extension {extension} couldn't be installed"
-
-            log = execute_statement(engine, statement, success, error)
-            print(log)
-
-            # with engine.connect() as conn:
-            #     transaction = conn.begin()
-            #     try:
-            #         conn.execute(create_extension)
-            #         transaction.commit()
-            #         print(f"INFO: Extension {extension} has been installed.")
-            #     except SQLAlchemyError as e:
-            #         transaction.rollback()
-            #         print(f"ERROR: Extension {extension} couldn't be installed: {e}.")
-            #     continue
-                
-
-    # with engine.connect() as conn:
-    #     result = conn.execute(get_extensions).fetchall()
-    #     installed_extensions = []
-
-    # for i in result:
-    #     installed_extensions.append(i[0])
+            message = execute_statement(engine, statement, success, error)
+            
+            write_to_log(log, message)
+            write_to_setup_statements(setup_statements, create_extension)
+            write_to_undo_statements(undo_statements, drop_extension)

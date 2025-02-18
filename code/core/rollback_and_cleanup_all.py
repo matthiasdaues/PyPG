@@ -5,16 +5,16 @@ from sqlalchemy import create_engine                # noqa: F401
 from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
-import utils.db_connect as db_connect
-from core.read_configuration import read_configuration
-from core.create_schemas import create_schema_roles
+import code.utils.db_connect as db_connect
+from code.core.read_configuration import read_configuration
+from code.core.create_schemas import create_schema_roles
 
 
 # Password for authorizing the drop operation via user input
 password = 'drop_it_now'
 
 
-def drop_database(config, connection):
+def drop_database(config):
     """
     Gets database configuration parameters from the given
     "config.yml" file and drops the database as specified in
@@ -28,7 +28,7 @@ def drop_database(config, connection):
     db_name = configuration['db_name']
 
     # PostgreSQL connection information
-    conn_string = db_connect.get_db_connection(config, connection)
+    conn_string = db_connect.get_db_connection(config)
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
@@ -41,8 +41,8 @@ def drop_database(config, connection):
         print("Access granted. Database will be dropped.")
 
         # If the password matches, drop the database:
-        if sal_utils.database_exists(engine.url): 
-            sal_utils.drop_database(engine.url)
+        if sal_code.utils.database_exists(engine.url): 
+            sal_code.utils.drop_database(engine.url)
             print(f"INFO: Database {db_name} dropped.")
         else:
             print(f"INFO: Database {db_name} does not exist.")
@@ -51,7 +51,7 @@ def drop_database(config, connection):
         print("Access denied. Incorrect password.")
 
 
-def drop_users(config, connection):
+def drop_users(config):
     """
     Gets database configuration parameters from the given
     "config.yml" file and drops existing users from the list
@@ -95,7 +95,7 @@ def drop_users(config, connection):
         print("Access denied. Incorrect password.")
 
 
-def drop_roles(config, connection):
+def drop_roles(config):
     """
     Gets database configuration parameters from the given
     "config.yml" file and drops existing roles from the list
@@ -122,7 +122,7 @@ def drop_roles(config, connection):
     for schema in configuration['schemas']:
 
         # Collect drop statements for the given schema
-        schema_roles = create_schema_roles(schema, connection)
+        schema_roles = create_schema_roles(schema)
         statements = schema_roles['drop_statements_all'] + \
                      schema_roles['drop_statements_use'] + \
                      schema_roles['drop_statements_r']

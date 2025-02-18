@@ -4,15 +4,15 @@ from sqlalchemy import create_engine                # noqa: F401
 from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
-import utils.db_connect as db_connect
-from utils.write_to_log import write_to_log
-from utils.write_to_setup_statements import write_to_setup_statements
-from utils.write_to_undo_statements import write_to_undo_statements
-from core.read_configuration import read_configuration
-from utils.random_password_generator import generate_password
+import code.utils.db_connect as db_connect
+from code.utils.write_to_log import write_to_log
+from code.utils.write_to_setup_statements import write_to_setup_statements
+from code.utils.write_to_undo_statements import write_to_undo_statements
+from code.core.read_configuration import read_configuration
+from code.utils.random_password_generator import generate_password
 
 
-def create_users(config, connection):
+def create_users(config):
     """
     Gets database configuration parameters from the given
     "config.yml" file and creates the users specified in
@@ -31,8 +31,8 @@ def create_users(config, connection):
     secrets = configuration['files']['secrets']
 
     # PostgreSQL connection information
-    conn_string = db_connect.get_db_connection(config, connection)
-    setup_user = db_connect.get_setup_user(connection)
+    conn_string = db_connect.get_db_connection(config)
+    setup_user = db_connect.get_setup_user()
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)

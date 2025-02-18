@@ -15,22 +15,22 @@ connection = './inputs/connection.yml'
 core.create_local_folders_and_files(config)
 
 # create database on cluster as specified in the connection.yml
-core.create_database(config, connection)
+core.create_database(config)
 
 # create extensions in the database.
-core.create_extensions(config, connection)
+core.create_extensions(config)
 
 # create the users (login roles) if they don't already
 # exist on the pg-cluster.
-core.create_users(config, connection)
+core.create_users(config)
 
 # create the schemas in the database along with their
 # respective access tiers.
-core.create_schemas(config, connection) 
+core.create_schemas(config) 
 
 # grant the respective privileges per user on the schemas
 # as defined in the three access tiers.
-core.create_policies(config, connection)
+core.create_policies(config)
 
 # TODO: Create a function to collect all roles granted to postgres in the process and revoke them.
 # TODO: Create sql files with grant and revoke statements in the database folder structure

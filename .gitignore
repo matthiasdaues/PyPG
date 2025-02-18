@@ -12,6 +12,11 @@ secrets.txt
 setup_statements.sql
 undo_statements.sql
 log.log
+.env
+config.yml
+config.yml.bak
+*.zip
+*.ipynb
 
 
 #################################

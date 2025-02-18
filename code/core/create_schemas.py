@@ -4,14 +4,14 @@ from sqlalchemy import create_engine                # noqa: F401
 from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
-import utils.db_connect as db_connect
-from utils.write_to_log import write_to_log
-from utils.write_to_setup_statements import write_to_setup_statements
-from utils.write_to_undo_statements import write_to_undo_statements
-from core.read_configuration import read_configuration
+import code.utils.db_connect as db_connect
+from code.utils.write_to_log import write_to_log
+from code.utils.write_to_setup_statements import write_to_setup_statements
+from code.utils.write_to_undo_statements import write_to_undo_statements
+from code.core.read_configuration import read_configuration
 
 
-def create_schemas(config: str, connection: str):
+def create_schemas(config: str):
     """
     Get database configuration parameters from the given
     "config.yml" file and deploy the database specific
@@ -22,7 +22,7 @@ def create_schemas(config: str, connection: str):
     configuration = read_configuration(config)
 
     # PostgreSQL connection information
-    conn_string = db_connect.get_db_connection(config, connection)
+    conn_string = db_connect.get_db_connection(config)
 
     # define define log and statement files
     setup_statements = configuration['files']['setup_statements']
@@ -55,7 +55,7 @@ def create_schemas(config: str, connection: str):
         create_schema = text(f"create schema {quoted_name(schema, False)};")
         create_comment = text(f"comment on schema {quoted_name(schema, False)} is '{quoted_name(comment, False)}'")
         drop_schema = text(f"drop schema {quoted_name(schema, False)} cascade;")
-        schema_roles = create_schema_roles(schema, connection)
+        schema_roles = create_schema_roles(schema)
 
         # create schema in db
         if schema in existing_schemas:
@@ -189,7 +189,7 @@ def create_schemas(config: str, connection: str):
 ######################
 
 
-def create_schema_roles(schema: str, connection: str):
+def create_schema_roles(schema: str):
     """
     Create sql statements to model three access tiers for a given schema:
     1. schema_all = master of schema and objects within. Can do all.
@@ -198,7 +198,7 @@ def create_schema_roles(schema: str, connection: str):
     """
     
     # PostgreSQL connection information
-    setup_user = db_connect.get_setup_user(connection)
+    setup_user = db_connect.get_setup_user()
 
     ####################
     # Access Tier "all" 

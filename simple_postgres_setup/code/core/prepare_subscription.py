@@ -4,11 +4,11 @@ from sqlalchemy import create_engine                # noqa: F401
 from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
-import code.utils.db_connect as db_connect
-from code.utils.write_to_log import write_to_log
-from code.utils.write_to_setup_statements import write_to_setup_statements
-from code.utils.write_to_undo_statements import write_to_undo_statements
-from code.core.read_configuration import read_configuration
+import simple_postgres_setup.code.utils.db_connect as db_connect
+from simple_postgres_setup.code.utils.write_to_log import write_to_log
+from simple_postgres_setup.code.utils.write_to_setup_statements import write_to_setup_statements
+from simple_postgres_setup.code.utils.write_to_undo_statements import write_to_undo_statements
+from simple_postgres_setup.code.core.read_configuration import read_configuration
 
 
 def prepare_subscription(config: str, connection: str):

@@ -5,9 +5,9 @@ from sqlalchemy import create_engine                # noqa: F401
 from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
-import code.utils.db_connect as db_connect
-from code.core.read_configuration import read_configuration
-from code.core.create_schemas import create_schema_roles
+import simple_postgres_setup.code.utils.db_connect as db_connect
+from simple_postgres_setup.code.core.read_configuration import read_configuration
+from simple_postgres_setup.code.core.create_schemas import create_schema_roles
 
 
 # Password for authorizing the drop operation via user input
@@ -41,8 +41,8 @@ def drop_database(config):
         print("Access granted. Database will be dropped.")
 
         # If the password matches, drop the database:
-        if sal_code.utils.database_exists(engine.url): 
-            sal_code.utils.drop_database(engine.url)
+        if sal_utils.database_exists(engine.url): 
+            sal_utils.drop_database(engine.url)
             print(f"INFO: Database {db_name} dropped.")
         else:
             print(f"INFO: Database {db_name} does not exist.")
@@ -62,7 +62,7 @@ def drop_users(config):
     configuration = read_configuration(config)
 
     # PostgreSQL connection information
-    conn_string = db_connect.get_cluster_connection(connection)
+    conn_string = db_connect.get_cluster_connection()
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
@@ -106,7 +106,7 @@ def drop_roles(config):
     configuration = read_configuration(config)
 
     # PostgreSQL connection information
-    conn_string = db_connect.get_cluster_connection(connection)
+    conn_string = db_connect.get_cluster_connection()
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)

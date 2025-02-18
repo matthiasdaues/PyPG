@@ -1,0 +1,79 @@
+# this will create the output directory and their con-
+# tent in the same directory as you run the code from
+doc_path: outputs/test/doc
+log_path: outputs/test/log
+secrets_path: outputs/test/secrets
+
+# the name of your planned database
+db_name: my_db_name
+
+# the names of the schemas you need
+# followed by the schema comment
+schemas:
+    schema_staging: 'loading and preprocessing area'
+    schema_main: 'home of my relevant data'
+    public: 'standard public schema'
+
+# these extensions are always nice to have
+extensions:
+    - fuzzystrmatch
+    - pg_trgm
+    - postgis
+    - pgrouting
+    - plpython3u
+    - pgcrypto
+    - btree_gin
+
+users:
+    # To create users sql with a password will be
+    # automatically generated.
+    # The user login will be stored in a "secrets" file
+    # locally but not pushed to github.
+    #
+    # 1. Login roles for system access by components or programs
+    - administrator
+    - some_usage_role
+    - some_read_only_role
+    # 2. Login roles for persons accessing the db
+    - some_person
+
+policies:
+    # The policies follow a role based access control pattern.
+    # Per schema there exist three access tiers:
+    # "all" = ALL privileges within schema are granted
+    # "use" = CRUD privileges on table content are granted
+    # "r"   = SELECT privileges on table content are granted
+    # The respective access rights are granted to each user
+    # patterned like this: schema: tier
+
+    administrator:
+        schema_staging: all
+        schema_main: all
+        public: all
+
+    some_usage_role:
+        schema_staging: use
+        schema_main: use
+        public: use
+    
+    some_read_only_role:
+        schema_staging: read
+        schema_main: read
+        public: read
+
+    some_person:
+        schema_staging: use
+        schema_main: use
+        public: use
+
+subscription:
+    # To subscribe to a publication the user must have the 
+    # pg_create_subscription privilege. 
+    # This setting decides which user should be endowed with
+    # this privilege.
+    # This user should also be the owner of the target tables.
+    # Define here which user (grantee) needs to be able to grant 
+    # ownership to the replication user by assigning it the
+    # the replication user role (user_role):
+
+    # grantee: user_role    

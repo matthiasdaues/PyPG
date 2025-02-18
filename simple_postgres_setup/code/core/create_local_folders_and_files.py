@@ -1,7 +1,7 @@
 import os
 
 from .read_configuration import read_configuration
-from code.utils import write_to_log
+from simple_postgres_setup.code.utils import write_to_log
 
 
 def create_local_folders_and_files(config):

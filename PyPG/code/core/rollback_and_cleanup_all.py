@@ -5,9 +5,9 @@ from sqlalchemy import create_engine                # noqa: F401
 from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
-import code.utils.db_connect as db_connect
-from code.core.read_configuration import read_configuration
-from code.core.create_schemas import create_schema_roles
+import PyPG.code.utils.db_connect as db_connect
+from PyPG.code.core.read_configuration import read_configuration
+from PyPG.code.core.create_schemas import create_schema_roles
 
 
 # Password for authorizing the drop operation via user input

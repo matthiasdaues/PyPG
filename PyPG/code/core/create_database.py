@@ -1,11 +1,11 @@
 import sqlalchemy_utils as sal_utils                # noqa: F401
 from sqlalchemy import create_engine                # noqa: F401
 
-import code.utils.db_connect as db_connect
-from code.utils.write_to_log import write_to_log
-from code.utils.write_to_setup_statements import write_to_setup_statements
-from code.utils.write_to_undo_statements import write_to_undo_statements
-from code.core.read_configuration import read_configuration
+import  PyPG.code.utils.db_connect as db_connect
+from PyPG.code.utils.write_to_log import write_to_log
+from PyPG.code.utils.write_to_setup_statements import write_to_setup_statements
+from PyPG.code.utils.write_to_undo_statements import write_to_undo_statements
+from PyPG.code.core.read_configuration import read_configuration
 
 
 def create_database(config):

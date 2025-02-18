@@ -18,6 +18,8 @@ config.yml.bak
 *.zip
 *.ipynb
 
+poetry.lock
+
 
 #################################
 # github generic python gitignore

@@ -55,8 +55,6 @@ PWD=some_password
 - A `config.yml` specifying how to configure the database and where to store output artifacts. 
 
 **NOTE:** An example configuration file is included in the `templates` subfolder of this package: `templates/config.yml.example`
-```
-
 
 ---
 

@@ -62,7 +62,7 @@ def drop_users(config):
     configuration = read_configuration(config)
 
     # PostgreSQL connection information
-    conn_string = db_connect.get_cluster_connection(connection)
+    conn_string = db_connect.get_cluster_connection()
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)
@@ -106,7 +106,7 @@ def drop_roles(config):
     configuration = read_configuration(config)
 
     # PostgreSQL connection information
-    conn_string = db_connect.get_cluster_connection(connection)
+    conn_string = db_connect.get_cluster_connection()
 
     # Create the SQLAlchemy engine
     engine = create_engine(conn_string)

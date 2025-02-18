@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "simple_postgres_setup"
-version = "0.1.2"
+version = "0.1.3"
 description = "simple_postgres_setup is a python utility for deploying PostgreSQL databases from a yaml configuration file."
 authors = ["Matthias Daues <matthias.daues@datenschoenheit.de>"]
 license = "MIT"

@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-import PyPG.code.core as core
+import simple_postgres_setup.code.core as core
 
 load_dotenv(override=True)
 

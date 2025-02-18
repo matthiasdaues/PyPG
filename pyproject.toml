@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "pypg"
+name = "simple_postgres_setup"
 version = "0.1.0"
-description = "PyPG is a python utility for deploying PostgreSQL databases from a yaml configuration file."
+description = "simple_postgres_setup is a python utility for deploying PostgreSQL databases from a yaml configuration file."
 authors = ["Matthias Daues <matthias.daues@datenschoenheit.de>"]
 license = "MIT"
 readme = "README.md"

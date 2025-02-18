@@ -4,12 +4,12 @@ from sqlalchemy import create_engine                # noqa: F401
 from sqlalchemy import text, quoted_name            # noqa: F401
 from sqlalchemy.exc import SQLAlchemyError          # noqa: F401
 
-import  PyPG.code.utils.db_connect as db_connect
-from PyPG.code.utils.write_to_log import write_to_log
-from PyPG.code.utils.write_to_setup_statements import write_to_setup_statements
-from PyPG.code.utils.write_to_undo_statements import write_to_undo_statements
-from PyPG.code.utils.execute_statement import execute_statement
-from PyPG.code.core.read_configuration import read_configuration
+import  simple_postgres_setup.code.utils.db_connect as db_connect
+from simple_postgres_setup.code.utils.write_to_log import write_to_log
+from simple_postgres_setup.code.utils.write_to_setup_statements import write_to_setup_statements
+from simple_postgres_setup.code.utils.write_to_undo_statements import write_to_undo_statements
+from simple_postgres_setup.code.utils.execute_statement import execute_statement
+from simple_postgres_setup.code.core.read_configuration import read_configuration
 
 
 def create_extensions(config):
